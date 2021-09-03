@@ -1,12 +1,12 @@
-var sha256 = require("js-sha256");
+const sha256 = require("crypto-js/sha256");
+
 //each block includes a block header and a block body
 class Block {
-  constructor(index, timestamp, data, previousHash = "") {
-    this.index = index; //which block is it in the chain
+  constructor(timestamp, transactions, previousHash = "") {
     this.previousHash = previousHash; //hash of previous block to ensure integrity
     this.hash = this.calculateHash(); //current block hash based on data
     this.timestamp = timestamp;
-    this.data = data;
+    this.transactions = transactions;
     // this.difficulty = difficulty;
     this.nonce = 0; // used to find the hidden hash that signed the block
     // this.transactionListHash;
@@ -17,14 +17,14 @@ class Block {
   //difficulty target for this block
   //nonce used to mine this block
 
-  //block body is rhw lost of transactions used to generate blake 3 root hash
+  //block body is the list of transactions used to generate blake 3 root hash
 
   calculateHash() {
     return sha256(
       this.index +
         this.previousHash +
         this.timestamp +
-        JSON.stringify(this.data) +
+        JSON.stringify(this.transactions) +
         this.nonce
     ).toString();
   }
