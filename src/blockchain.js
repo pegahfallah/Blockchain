@@ -43,21 +43,32 @@ class Blockchain {
 
   //in reality miners pick transactions
   minePendingTransactions(miningRewardAddress) {
-    let block = new Block(Date.now(), this.pendingTransactions);
-    console.log("block mined");
+    const rewardTx = new Transaction(
+      null,
+      miningRewardAddress,
+      this.miningReward
+    );
+    this.pendingTransactions.push(rewardTx);
+
+    const block = new Block(
+      Date.now(),
+      this.pendingTransactions,
+      this.getLatestBlock().hash
+    );
     block.mineBlock(this.difficulty);
+    console.log("mined successfully");
     this.chain.push(block);
 
-    //create a new transaction to give miner reward
-    this.pendingTransactions = [
-      new Transaction(null, miningRewardAddress, this.miningReward),
-    ];
+    this.pendingTransactions = [];
   }
 
   addTransaction(transaction) {
     //check that from and to address are filled in
     if (!transaction.fromAddress || !transaction.toAddress) {
       throw new Error("transaction must include from and to address");
+    }
+    if (transaction.amount <= 0) {
+      throw new Error("Transaction amount should be higher than 0");
     }
 
     if (!transaction.isTransactionValid()) {
@@ -90,33 +101,54 @@ class Blockchain {
 
     return balance;
   }
+
+  getAllTransactionsForWallet(address) {
+    const txs = [];
+
+    for (const block of this.chain) {
+      for (const tx of block.transactions) {
+        if (tx.fromAddress === address || tx.toAddress === address) {
+          txs.push(tx);
+        }
+      }
+    }
+
+    return txs;
+  }
+
   /**
    *
    * @returns false if a block is tampered with
    */
   isChainValid() {
-    for (let i = 1; i < this.chain.length; i++) {
-      const currBlock = this.chain[i];
-      const prevBlock = this.chain[i - 1];
+    // Check if the Genesis block hasn't been tampered with by comparing
+    // the output of createGenesisBlock with the first block on our chain
+    const realGenesis = JSON.stringify(this.createGenesisBlock());
 
-      if (!currBlock.hasValidTransactions()) {
-        return false;
-      }
-      //check if linked together properly
-      if (currBlock.hash !== currBlock.calculateHash()) {
-        return false;
-      }
-      if (currBlock.previousHash !== prevBlock.hash) {
-        console.log(currBlock.previousHash);
-        console.log(prevBlock.hash);
-        return false;
-      }
-      //   if (currBlock.previousHash != prevBlock.nonce) {
-      //     return false;
-      //   }
-      return true;
+    if (realGenesis !== JSON.stringify(this.chain[0])) {
+      return false;
     }
+
+    // Check the remaining blocks on the chain to see if there hashes and
+    // signatures are correct
+    for (let i = 1; i < this.chain.length; i++) {
+      const currentBlock = this.chain[i];
+      const previousBlock = this.chain[i - 1];
+
+      if (previousBlock.hash !== currentBlock.previousHash) {
+        return false;
+      }
+
+      if (!currentBlock.hasValidTransactions()) {
+        return false;
+      }
+
+      if (currentBlock.hash !== currentBlock.calculateHash()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
-
 module.exports = Blockchain;
