@@ -10,6 +10,7 @@ class Block {
     // this.difficulty = difficulty;
     this.nonce = 0; // used to find the hidden hash that signed the block
     // this.transactionListHash;
+    // let mempool = [];
   }
 
   //block header is a sha526 hash of the previous block
@@ -21,16 +22,18 @@ class Block {
 
   calculateHash() {
     return sha256(
-      this.index +
-        this.previousHash +
+      this.previousHash +
         this.timestamp +
         JSON.stringify(this.transactions) +
         this.nonce
     ).toString();
   }
 
+  //TODO: - Blake3 root hash of transaction list
+
   mineBlock(difficulty) {
-    //hash of block beginning with 0s
+    //hash of block beginning with Rs
+    let prefix = /R/i;
     while (
       this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")
     ) {

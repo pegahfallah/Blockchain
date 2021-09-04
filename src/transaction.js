@@ -10,6 +10,7 @@ class Transaction {
     this.fromAddress = fromAddress;
     this.toAddress = toAddress;
     this.amount = amount;
+
     // this.transactionID = this.getTranscationBodyHash();
   }
 
@@ -29,9 +30,11 @@ class Transaction {
     const signature = signingKey.sign(transactionHash, "base64");
     this.signature = signature.toDER("hex");
   }
-  /**
-   *
-   */
+
+  hasSeedTransaction = () => {
+    // check that transaction includes seed
+  };
+
   isTransactionValid() {
     if (this.fromAddress === null) return true;
     if (!this.signature || !this.signature.length === 0) {

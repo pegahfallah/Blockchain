@@ -4,8 +4,8 @@ const Transaction = require("./transaction.js");
 class Blockchain {
   constructor() {
     this.chain = [this.createGenesisBlock()];
-    this.difficulty = 2;
-    this.pendingTransactions = [];
+    this.difficulty = 1;
+    this.pendingTransactions = []; //mempool
     this.miningReward = 100;
   }
 
@@ -42,13 +42,10 @@ class Blockchain {
   // }
 
   //in reality miners pick transactions
+  // seed transaction mins new arb --> no signature no input, one output
   minePendingTransactions(miningRewardAddress) {
-    const rewardTx = new Transaction(
-      null,
-      miningRewardAddress,
-      this.miningReward
-    );
-    this.pendingTransactions.push(rewardTx);
+    const arb = new Transaction(null, miningRewardAddress, this.miningReward);
+    this.pendingTransactions.push(arb);
 
     const block = new Block(
       Date.now(),
