@@ -54,7 +54,15 @@ class Blockchain {
     ];
   }
 
-  createTransaction(transaction) {
+  addTransaction(transaction) {
+    //check that from and to address are filled in
+    if (!transaction.fromAddress || !transaction.toAddress) {
+      throw new Error("transaction must include from and to address");
+    }
+
+    if (!transaction.isTransactionValid()) {
+      throw new Error("transaction not valid cannot add to chain");
+    }
     this.pendingTransactions.push(transaction);
   }
 
@@ -90,12 +98,15 @@ class Blockchain {
     for (let i = 1; i < this.chain.length; i++) {
       const currBlock = this.chain[i];
       const prevBlock = this.chain[i - 1];
+
+      if (!currBlock.hasValidTransactions()) {
+        return false;
+      }
       //check if linked together properly
       if (currBlock.hash !== currBlock.calculateHash()) {
         return false;
       }
       if (currBlock.previousHash !== prevBlock.hash) {
-        console.log("here");
         console.log(currBlock.previousHash);
         console.log(prevBlock.hash);
         return false;

@@ -1,4 +1,8 @@
+const Transaction = require("./transaction");
+const Block = require("./block");
+const Blockchain = require("./blockchain");
 let s = new Blockchain();
+
 // console.log("mining 1");
 
 s.createTransaction(new Transaction("address1", "address2", 100));
