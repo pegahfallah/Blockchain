@@ -17,7 +17,7 @@ npm install
 ```
 
 ```
-node run test.js
+node test.js
 ```
 
 https://www.notion.so/bloomdevs/Arbor-Blockchain-Specification-089ab17c031747428831cdce61af2e24#36ab1b2ed6224b6195a97e32a4a0d144
